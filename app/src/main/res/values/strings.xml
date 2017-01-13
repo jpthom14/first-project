@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Lists</string>
+    <string name="tab1_text">To do</string>
+    <string name="tab2_text">Completed</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="button_confirm">Confirm</string>
+    <string name="add_text_dialog">Enter the task:</string>
+</resources>
