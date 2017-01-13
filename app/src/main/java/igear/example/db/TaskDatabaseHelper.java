@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+
 /**
  * Class that wraps the most common database operations. This example assumes you want a single table and data entity
  * with two properties: a title and a priority as an integer. Modify in all relevant locations if you need other/more
@@ -32,7 +33,7 @@ public class TaskDatabaseHelper {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            db.execSQL("create table todos (_id integer primary key autoincrement, " + TaskContract.TaskEntry.COL_TASK_TITLE + " text, " + TaskContract.TaskEntry.COL_TASK_SORT_ORDER + " integer)");
+            db.execSQL("create table todos (_id integer primary key autoincrement, " + TaskContract.TaskEntry.COL_TASK_TITLE + " text, " + TaskContract.TaskEntry.COL_TASK_SORT_ORDER + " integer, " + TaskContract.TaskEntry.COL_TASK_COMPLETED + " integer);");
         }
 
         @Override
@@ -44,20 +45,30 @@ public class TaskDatabaseHelper {
      * Return a cursor object with all rows in the table.
      * @return A cursor suitable for use in a SimpleCursorAdapter
      */
-    public Cursor getAll() {
-        SQLiteDatabase db = _openHelper.getReadableDatabase();
-        if (db == null) {
-            return null;
+    public Cursor getAll(boolean returnCompleted) {
+        if(returnCompleted){
+            SQLiteDatabase db = _openHelper.getReadableDatabase();
+            if (db == null) {
+                return null;
+            }
+            return db.rawQuery("select * from todos where " + TaskContract.TaskEntry.COL_TASK_COMPLETED + " = 1 order by " + TaskContract.TaskEntry.COL_TASK_TITLE, null);
         }
-        return db.rawQuery("select * from todos order by " + TaskContract.TaskEntry.COL_TASK_SORT_ORDER + ", " + TaskContract.TaskEntry.COL_TASK_TITLE, null);
+        else {
+            SQLiteDatabase db = _openHelper.getReadableDatabase();
+            if (db == null) {
+                return null;
+            }
+            return db.rawQuery("select * from todos where " + TaskContract.TaskEntry.COL_TASK_COMPLETED + " = 0 order by " + TaskContract.TaskEntry.COL_TASK_SORT_ORDER + ", " + TaskContract.TaskEntry.COL_TASK_TITLE, null);
+        }
     }
+
 
     /**
      * Return values for a single row with the specified id
      * @param id The unique id for the row o fetch
      * @return All column values are stored as properties in the ContentValues object
      */
-    public ContentValues get(long id) {
+/*    public ContentValues get(long id) {
         SQLiteDatabase db = _openHelper.getReadableDatabase();
         if (db == null) {
             return null;
@@ -71,7 +82,7 @@ public class TaskDatabaseHelper {
         cur.close();
         db.close();
         return row;
-    }
+    }*/
 
     /**
      * Add a new row to the database table
@@ -87,6 +98,7 @@ public class TaskDatabaseHelper {
         ContentValues row = new ContentValues();
         row.put(TaskContract.TaskEntry.COL_TASK_TITLE, title);
         row.put(TaskContract.TaskEntry.COL_TASK_SORT_ORDER, priority);
+        row.put(TaskContract.TaskEntry.COL_TASK_COMPLETED, 0);
         long id = db.insert("todos", null, row);
         db.close();
         return id;
@@ -113,7 +125,7 @@ public class TaskDatabaseHelper {
      * @param title The new title value
      * @param priority The new priority value
      */
-    public void update(long id, String title, int priority) {
+    public void update(long id, String title, int priority, int completed) {
         SQLiteDatabase db = _openHelper.getWritableDatabase();
         if (db == null) {
             return;
@@ -121,6 +133,7 @@ public class TaskDatabaseHelper {
         ContentValues row = new ContentValues();
         row.put(TaskContract.TaskEntry.COL_TASK_TITLE, title);
         row.put(TaskContract.TaskEntry.COL_TASK_SORT_ORDER, priority);
+        row.put(TaskContract.TaskEntry.COL_TASK_COMPLETED, completed);
         db.update("todos", row, "_id = ?", new String[] { String.valueOf(id) } );
         db.close();
     }

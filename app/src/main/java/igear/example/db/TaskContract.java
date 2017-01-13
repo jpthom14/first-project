@@ -7,5 +7,6 @@ public class TaskContract {
         public static final String COL_TASK_TITLE = "title";
         public static final String COL_TASK_SORT_ORDER = "sort_order";
         public static final String COL_TASK_COMPLETED = "completed";
+        public static final String COL_TASK_CATEGORY = "category";
     }
 }
